@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en"></html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Quirky Chess Engine</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="main-container">
+            <img src="public/Logo.png" alt="Quirky Chess Engine Logo" class="logo" height="200" width="200">
+            <h1>Quirky Chess Engine <span class="small-h1">v1.0</span></h1>
+            <p>Quirky Chess Engine is a JavaScript chess engine that plays chess with a twist.</p>
+            <button id="theme-toggle">i love dark mode</button>
+        </div>
+        <script>
+            const themeToggle = document.getElementById('theme-toggle');
+            const getPreferredTheme = () => {
+                if (localStorage.getItem('theme')) {
+                    return localStorage.getItem('theme');
+                }
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    return 'dark';
+                }
+                return 'light';
+            };
+
+            const setTheme = (theme) => {
+                document.documentElement.setAttribute('data-theme', theme);
+                themeToggle.textContent = theme === 'dark' ? 'i love light mode' : 'i love dark mode';
+            };
+
+            setTheme(getPreferredTheme());
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+
+            if (!localStorage.getItem('theme')) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                    setTheme(e.matches ? 'dark' : 'light');
+                });
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,112 @@
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("public/VisbyRoundCF-ExtraLight.woff2") format("woff2");
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("public/VisbyRoundCF-Light.woff2") format("woff2");
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("public/VisbyRoundCF-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("public/VisbyRoundCF-Medium.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("public/VisbyRoundCF-DemiBold.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("public/VisbyRoundCF-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("public/VisbyRoundCF-ExtraBold.woff2") format("woff2");
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("public/VisbyRoundCF-Heavy.woff2") format("woff2");
+    font-weight: 900;
+    font-style: normal;
+}
+
+body {
+    font-family: 'Visby Round CF', sans-serif;
+    background-color: #F2E5D3;
+    background-image: 
+        linear-gradient(45deg, #5E463E 25%, transparent 25%, transparent 75%, #5E463E 75%, #5E463E),
+        linear-gradient(45deg, #5E463E 25%, transparent 25%, transparent 75%, #5E463E 75%, #5E463E);
+    background-size: 88px 88px;
+    background-position: 0 0, 44px 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.small-h1 {
+    font-size: 1rem;
+}
+
+.main-container {
+    color: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: #F2E5D3; /* Increased opacity for better contrast */
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(60, 40, 20, 0.18); /* Darker, larger shadow for depth */
+    backdrop-filter: blur(18px) saturate(120%);
+    -webkit-backdrop-filter: blur(18px) saturate(120%);
+    border: 1.5px solid rgba(120, 100, 80, 0.22); /* Slightly darker border */
+    width: 90dvw;
+    height: 90dvh;
+}
+
+.main-container p {
+    margin-top: 0;
+}
+
+[data-theme="dark"] body {
+    background-color: #5E463E;
+    background-image: 
+        linear-gradient(45deg, #3E312A 25%, transparent 25%, transparent 75%, #3E312A 75%, #3E312A),
+        linear-gradient(45deg, #3E312A 25%, transparent 25%, transparent 75%, #3E312A 75%, #3E312A);
+}
+
+[data-theme="dark"] .main-container {
+    background: rgba(62, 49, 42);
+    color: white;
+}
+
+[data-theme="dark"] .main-container img {
+    filter: invert(1) hue-rotate(180deg);
+}
