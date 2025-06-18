@@ -1,3 +1,59 @@
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("/public/VisbyRoundCF-ExtraLight.woff2") format("woff2");
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("/public/VisbyRoundCF-Light.woff2") format("woff2");
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("/public/VisbyRoundCF-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("/public/VisbyRoundCF-Medium.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("public/VisbyRoundCF-DemiBold.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("/public/VisbyRoundCF-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("/public/VisbyRoundCF-ExtraBold.woff2") format("woff2");
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Visby Round CF";
+    src: url("/public/VisbyRoundCF-Heavy.woff2") format("woff2");
+    font-weight: 900;
+    font-style: normal;
+}
+
 body {
     margin: 0;
     height: 100vh;
@@ -7,6 +63,7 @@ body {
     background: conic-gradient(from 90deg at 1.1px 1.1px, #ffffff 25%,#ececec 0);
     background-size: 22px 22px;
     animation: scrolling 60s linear infinite;
+    font-family: 'Visby Round CF', sans-serif;
 }
 
 @keyframes scrolling {
@@ -25,6 +82,25 @@ body {
     justify-content: center;
     border-radius: 8px;
     overflow: hidden;
+    transition: all 750ms ease;
+    margin-left: auto;
+    margin-right: clamp(0rem, 8vw, 6rem);
+}
+
+#chess-board.white-turn {
+    transform: rotate(180deg);
+}
+
+#chess-board.white-turn .chess-piece {
+    transform: rotate(180deg);
+}
+
+#chess-board.black-turn {
+    transform: rotate(0deg);
+}
+
+#chess-board.black-turn .chess-piece {
+    transform: rotate(0deg);
 }
 
 .chess-row {
@@ -32,8 +108,8 @@ body {
 }
 
 .chess-col {
-    width: 80px;
-    height: 80px;
+    width: clamp(2.5rem, 8vw, 5rem);
+    height: clamp(2.5rem, 8vw, 5rem);
     position: relative;
     align-items: center;
     justify-content: center;
@@ -65,7 +141,6 @@ body {
     pointer-events: none;
 }
 
-
 .chess-col.available {
     position: relative;
     filter: brightness(1.08);
@@ -85,7 +160,69 @@ body {
 }
 
 .chess-piece {
-    max-width: 80px;
-    max-height: 80px;
+    max-width: clamp(2.5rem, 8vw, 5rem);;
+    max-height: clamp(2.5rem, 8vw, 5rem);;
     pointer-events: none;
+}
+
+#rule-toggler {
+    display: flex;
+    flex-direction: column;
+    margin-left: 96px;
+    gap: 0.5rem;
+}
+
+#rule-toggler h2 {
+    font-size: 2rem;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    margin: 0;
+    margin-bottom: 0.5rem;
+}
+
+#rule-toggler button {
+    background: none;
+    border: none;
+    font-family: 'Visby Round CF', sans-serif;
+    cursor: pointer;
+    text-align: left;
+    margin: 0;
+}
+
+#rule-toggler .dropdown {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    font-size: 1.4rem;
+    margin: 0;
+    margin-bottom: 0.25rem;
+}
+
+#promotion-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#promotion-modal {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.promotion-choices {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    justify-content: center;
 }

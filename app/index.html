@@ -6,11 +6,63 @@
         <title>Quirky Chess Engine | App</title>
 
         <link rel="stylesheet" href="app/style.css">
-        <script src="app/index.js"></script>
+        <link href="/public/lucide-font/lucide.css" rel="stylesheet" />
     </head>
     <body>
+        <div id="rule-toggler">
+            <h2><div class="icon-scale"></div>Toggle Rules</h2>
+            <button id="legal-moves-dropdown" class="dropdown">Legal Moves<div class="icon-chevron-down" id="legal-moves-dropdown-icon"></div></button>
+            <button id="castling-toggle">♖ Disable Castling</button>
+            <button id="en-passant-toggle">♙ Disable En Passant</button>
+            <button id="pawn-promotion-toggle">♙ Disable Pawn Promotion</button>
+        </div>
+
         <div id="chess-board">
 
         </div>
+
+        <div id="promotion-overlay" style="display: none;">
+            <div id="promotion-modal">
+                <h3>Promote Pawn to:</h3>
+                <div class="promotion-choices">
+
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            const elements = {
+                legalMovesDropdown: document.getElementById('legal-moves-dropdown'),
+                legalMovesDropdownIcon: document.getElementById('legal-moves-dropdown-icon'),
+                castlingToggle: document.getElementById('castling-toggle'),
+                enPassantToggle: document.getElementById('en-passant-toggle'),
+                pawnPromotionToggle: document.getElementById('pawn-promotion-toggle'),
+            }
+
+            let dropdowns = {
+                legalMoves: true,
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                elements.legalMovesDropdown.addEventListener('click', function() {
+                    if (dropdowns.legalMoves) { // dropdowns.legalMoves = true
+                        dropdowns.legalMoves = false;
+                        elements.legalMovesDropdownIcon.classList.add("icon-chevron-up");
+                        elements.legalMovesDropdownIcon.classList.remove("icon-chevron-down");
+                        elements.castlingToggle.style.display = "none";
+                        elements.enPassantToggle.style.display = "none";
+                        elements.pawnPromotionToggle.style.display = "none";
+                    } else {
+                        dropdowns.legalMoves = true;
+                        elements.legalMovesDropdownIcon.classList.add("icon-chevron-down");
+                        elements.legalMovesDropdownIcon.classList.remove("icon-chevron-up");
+                        elements.castlingToggle.style.display = "inline";
+                        elements.enPassantToggle.style.display = "inline";
+                        elements.pawnPromotionToggle.style.display = "inline";
+                    }
+                })
+            })
+        </script>
+        <script src="app/index.js"></script>
     </body>
 </html>
