@@ -62,7 +62,7 @@ function renderBoard() {
             }
             if (piece !== '.') {
                 const img = document.createElement('img');
-                img.src = `./app/pieces/standard/${piece}.png`;
+                img.src = `/app/pieces/standard/${piece}.png`;
                 img.alt = piece;
                 img.className = 'chess-piece';
                 sq.appendChild(img);
@@ -752,7 +752,7 @@ function setupPromotionChoices(color) {
     promotionPieces.forEach(pieceType => {
         const img = document.createElement('img');
         const pieceId = color + pieceType;
-        img.src = `./pieces/standard/${pieceId}.png`;
+        img.src = `/app/pieces/standard/${pieceId}.png`;
         img.alt = pieceType;
         img.dataset.pieceType = pieceType;
         img.addEventListener('click', () => completePawnPromotion(pieceType));
