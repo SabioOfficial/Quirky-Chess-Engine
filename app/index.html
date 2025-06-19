@@ -9,21 +9,28 @@
         <link href="/public/lucide-font/lucide.css" rel="stylesheet" />
     </head>
     <body>
+        <audio id="placeSFX">
+            <source src="public/place.mp3" type="audio/mp3">
+        </audio>
+
         <div id="rule-toggler">
+            <button id="exit-button"><div class="icon-undo-2"></div> Back (Hold)</button>
             <h2><div class="icon-scale"></div>Toggle Rules</h2>
             <button id="legal-moves-dropdown" class="dropdown">Legal Moves<div class="icon-chevron-down" id="legal-moves-dropdown-icon"></div></button>
             <button id="castling-toggle">♖ Disable Castling</button>
             <button id="en-passant-toggle">♙ Disable En Passant</button>
             <button id="pawn-promotion-toggle">♙ Disable Pawn Promotion</button>
+            <button id="illegal-moves-dropdown" class="dropdown">Illegal Moves<div class="icon-chevron-down" id="illegal-moves-dropdown-icon"></div></button>
+            <button id="il-vaticano-toggle">♙ Enable Il Vaticano</button>
         </div>
+        <div class="chess-container">
+            <div id="chess-board">
 
-        <div id="chess-board">
-
+            </div>
         </div>
 
         <div id="promotion-overlay" style="display: none;">
             <div id="promotion-modal">
-                <h3>Promote Pawn to:</h3>
                 <div class="promotion-choices">
 
                 </div>
@@ -32,16 +39,23 @@
         
         <script>
             const elements = {
+                backButton: document.getElementById('exit-button'),
                 legalMovesDropdown: document.getElementById('legal-moves-dropdown'),
                 legalMovesDropdownIcon: document.getElementById('legal-moves-dropdown-icon'),
+                illegalMovesDropdown: document.getElementById('illegal-moves-dropdown'),
+                illegalMovesDropdownIcon: document.getElementById('illegal-moves-dropdown-icon'),
                 castlingToggle: document.getElementById('castling-toggle'),
                 enPassantToggle: document.getElementById('en-passant-toggle'),
                 pawnPromotionToggle: document.getElementById('pawn-promotion-toggle'),
+                ilVaticanoToggle: document.getElementById('il-vaticano-toggle')
             }
 
             let dropdowns = {
                 legalMoves: true,
+                illegalMoves: true,
             }
+
+            let backTimer;
 
             document.addEventListener('DOMContentLoaded', function() {
                 elements.legalMovesDropdown.addEventListener('click', function() {
@@ -61,7 +75,31 @@
                         elements.pawnPromotionToggle.style.display = "inline";
                     }
                 })
+
+                elements.illegalMovesDropdown.addEventListener('click', function() {
+                    if (dropdowns.illegalMoves) {
+                        dropdowns.illegalMoves = false;
+                        elements.illegalMovesDropdownIcon.classList.add("icon-chevron-up");
+                        elements.illegalMovesDropdownIcon.classList.remove("icon-chevron-down");
+                        elements.ilVaticanoToggle.style.display = "none";
+                    } else {
+                        dropdowns.illegalMoves = true;
+                        elements.illegalMovesDropdownIcon.classList.add("icon-chevron-down");
+                        elements.illegalMovesDropdownIcon.classList.remove("icon-chevron-up");
+                        elements.ilVaticanoToggle.style.display = "inline";
+                    }
+                })
             })
+
+            elements.backButton.onpointerdown = function() {
+                backTimer = setTimeout(() => {
+                    window.location.pathname = '';
+                }, 1500);
+            }
+
+            elements.backButton.onpointerup = function() {
+                clearTimeout(backTimer);
+            }
         </script>
         <script src="app/index.js"></script>
     </body>

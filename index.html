@@ -10,11 +10,13 @@
         <div class="main-container">
             <img src="public/Logo.png" alt="Quirky Chess Engine Logo" class="logo" height="200" width="200">
             <h1>Quirky Chess Engine <span class="small-h1">v1.0</span></h1>
-            <p>Quirky Chess Engine is a JavaScript chess engine that plays chess with a twist.</p>
-            <button id="theme-toggle">i love dark mode</button>
+            <p>Quirky Chess Engine - A customizable local dual-player JavaScript-based chess engine.</p>
+
+            <div id="mini-chess-board" class="mini-chess-board">
+
+            </div>
         </div>
         <script>
-            const themeToggle = document.getElementById('theme-toggle');
             const getPreferredTheme = () => {
                 if (localStorage.getItem('theme')) {
                     return localStorage.getItem('theme');
@@ -27,23 +29,127 @@
 
             const setTheme = (theme) => {
                 document.documentElement.setAttribute('data-theme', theme);
-                themeToggle.textContent = theme === 'dark' ? 'i love light mode' : 'i love dark mode';
             };
 
             setTheme(getPreferredTheme());
-
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                setTheme(newTheme);
-                localStorage.setItem('theme', newTheme);
-            });
 
             if (!localStorage.getItem('theme')) {
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
                     setTheme(e.matches ? 'dark' : 'light');
                 });
             }
+
+            const board = [
+                ['.', 'bP', 'bB'],
+                ['.', 'wQ', '.'],
+            ];
+            let selected = null;
+
+            const renderBoard = () => {
+                const ui = document.getElementById('mini-chess-board');
+                ui.innerHTML = '';
+                for (let r = 0; r < 2; r++) {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'chess-row';
+                    for (let c = 0; c < 3; c++) {
+                        const sq = document.createElement('div');
+                        sq.className = `chess-col ${((r + c) % 2 === 0) ? 'light-square' : 'dark-square'}`;
+                        const p = board[r][c];
+
+                        if (sq.classList.contains('dark-square') && p[0] === 'b') sq.classList.add('lighter-dark-square');
+                        if (selected && selected.r === r && selected.c === c) sq.classList.add('selected');
+                        if (selected) {
+                            const srcP = board[selected.r][selected.c];
+                            if (srcP !== '.' && isMoveValid(srcP, selected, {r, c}, board)) sq.classList.add('available');
+                        }
+
+                        if (p !== '.') {
+                            const img = document.createElement('img');
+                            img.src = `./app/pieces/standard/${p}.png`;
+                            img.className = 'chess-piece';
+                            sq.appendChild(img);
+                        }
+                        sq.addEventListener('click', () => handleClick(r, c));
+                        rowDiv.appendChild(sq);
+                    }
+                    ui.appendChild(rowDiv);
+                }
+            }
+
+            const handleClick = (r, c) => {
+                const clickedP = board[r][c];
+
+                if (selected === null) {
+                    if (clickedP !== 'wQ') return;
+                    selected = {r, c};
+                    renderBoard();
+                    return;
+                }
+
+                const from = selected;
+                const p = board[from.r][from.c];
+
+                const to = {r, c};
+
+                if (isMoveValid(p, from, to, board)) {
+                    const captured = board[to.r][to.c];
+                    board[to.r][to.c] = p;
+                    board[from.r][from.c] = '.';
+
+                    if (captured === 'bP') {
+                        window.location.pathname = '/app';
+                        return;
+                    } else if (captured === 'bB') {
+                        const currentTheme = document.documentElement.getAttribute('data-theme');
+                        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                        setTheme(newTheme);
+                        localStorage.setItem('theme', newTheme);
+                        board[from.r][from.c] = 'bB';
+                    }
+                    selected = null;
+                    renderBoard();
+                } else {
+                    selected = null;
+                    renderBoard();
+                }
+            };
+
+            const isMoveValid = (p, f, t, b) => {
+                if (f.r === t.r && f.c === t.c) return false;
+                if (t.r < 0 || t.r >= b.length || t.c < 0 || t.c >= b[0].length) return false;
+                if (b[t.r][t.c] !== '.' && b[t.r][t.c][0] === p[0]) return false;
+
+                return isQueenValid(f, t, b);
+            };
+
+            const isRookValid = (f, t, b) => {
+                if (f.r !== t.r && f.c !== t.c) return false;
+                const dr = f.r === t.r ? 0 : (f.r < t.r ? 1 : -1);
+                const dc = f.c === t.c ? 0 : (f.c < t.c ? 1 : -1);
+                let r = f.r + dr, c = f.c + dc;
+                while (r !== t.r || c !== t.c) {
+                    if (b[r] && b[r][c] !== '.') return false;
+                    r += dr; c += dc;
+                }
+
+                return true;
+            };
+
+            const isBishopValid = (f, t, b) => {
+                if (Math.abs(f.r - t.r) !== Math.abs(f.c - t.c)) return false;
+                const dr = f.r < t.r ? 1 : -1;
+                const dc = f.c < t.c ? 1 : -1;
+                let r = f.r + dr, c = f.c + dc;
+                while (r !== t.r) {
+                    if (b[r] && b[r][c] !== '.') return false;
+                    r += dr; c += dc;
+                }
+                return true;
+            };
+
+            const isQueenValid = (f, t, b) => isRookValid(f, t, b) || isBishopValid(f, t, b);
+
+            document.addEventListener('DOMContentLoaded', renderBoard);
         </script>
     </body>
 </html>

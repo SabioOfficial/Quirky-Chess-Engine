@@ -1,13 +1,17 @@
-const board = [
-    ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR'],
+const INITIAL_BOARD = [
+    ['wR', 'wN', 'wB', 'wK', 'wQ', 'wB', 'wN', 'wR'],
     ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
-    ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR']
+    ['bR', 'bN', 'bB', 'bK', 'bQ', 'bB', 'bN', 'bR'],
 ];
+
+const placeAudio = document.getElementById('placeSFX');
+
+let board = INITIAL_BOARD.map(row => [...row]);
 
 let currentTurn = 'w';
 let gameOver = false;
@@ -25,6 +29,7 @@ let lastMove = null;
 let enableCastling = true;
 let enableEnPassant = true;
 let enablePawnPromotion = true;
+let enableIlVaticano = false;
 
 let pendingPromotion = null;
 
@@ -76,11 +81,13 @@ function renderBoard() {
     }
 
     const promotionOverlay = document.getElementById('promotion-overlay');
-    if (pendingPromotion) {
-        promotionOverlay.style.display = 'flex';
-        setupPromotionChoices(pendingPromotion.color);
-    } else {
-        promotionOverlay.style.display = 'none';
+    if (promotionOverlay) {
+        if (pendingPromotion) {
+            promotionOverlay.style.display = 'flex';
+            setupPromotionChoices(pendingPromotion.color);
+        } else {
+            promotionOverlay.style.display = 'none';
+        }
     }
 }
 
@@ -112,6 +119,46 @@ function handleClick(row, col) {
 
     const from = selected;
     const piece = board[from.row][from.col];
+    const to = { row, col };
+
+    if (enableIlVaticano && piece[1] === 'B' && clickedPiece[1] === 'B' && piece[0] === currentTurn && clickedPiece[0] === currentTurn && (from.row !== to.row || from.col !== to.col)) {
+        const ilVaticanoData = isIlVaticanoValid(from, to, board, currentTurn);
+        if (ilVaticanoData) {
+            ilVaticanoData.capturedPawns.forEach(pawnPos => {
+                board[pawnPos.row][pawnPos.col] = '.';
+            });
+
+            board[to.row][to.col] = piece;
+            board[from.row][from.col] = clickedPiece;
+
+            selected = null;
+            const playerWhoJustMoved = currentTurn;
+            currentTurn = currentTurn === 'w' ? 'b' : 'w';
+            lastMove = null;
+
+            if (isKingInCheck(currentTurn)) {
+                console.log(`${currentTurn} king is in check.`);
+                if (!hasLegalMoves(currentTurn)) {
+                    const winningColor = playerWhoJustMoved === 'w' ? 'White' : 'Black';
+                    alert(`Checkmate! ${winningColor} wins!`);
+                    gameOver = true;
+                } else {
+                    alert(`${currentTurn === 'w' ? 'White' : 'Black'} is in check!`);
+                }
+            } else if (!hasLegalMoves(currentTurn)) {
+                alert(`Stalemate! It's a draw!`);
+                gameOver = true;
+            }
+
+            renderBoard();
+            return;
+        } else {
+            console.log("Il Vaticano conditions not met for these bishops. (isIlVaticanoValid returned false)");
+            selected = null;
+            renderBoard();
+            return;
+        }
+    }
 
     if (piece === '.' || typeof piece !== 'string' || piece.length < 2) {
         console.error("Selected square is empty or invalid. Resetting selection.", {from, piece});
@@ -119,8 +166,6 @@ function handleClick(row, col) {
         renderBoard();
         return;
     }
-
-    const to = { row, col };
 
     console.log(`Trying to move ${piece} from`, from, 'to', to);
 
@@ -180,6 +225,8 @@ function handleClick(row, col) {
             else if (piece === 'bK') { castlingRights.bK = false; castlingRights.bQ = false; }
             if (piece === 'wR') { if (from.row === 0 && from.col === 0) castlingRights.wQ = false; if (from.row === 0 && from.col === 7) castlingRights.wK = false; }
             else if (piece === 'bR') { if (from.row === 7 && from.col === 0) castlingRights.bQ = false; if (from.row === 7 && from.col === 7) castlingRights.bK = false; }
+            if (captured === 'wR') { if (to.row === 0 && to.col === 0) castlingRights.wQ = false; if (to.row === 0 && to.col === 7) castlingRights.wK = false; }
+            else if (captured === 'bR') { if (to.row === 7 && to.col === 0) castlingRights.bQ = false; if (to.row === 7 && to.col === 7) castlingRights.bK = false; }
 
             if (enablePawnPromotion && piece[1] === 'P' && ((piece[0] === 'w' && to.row === 7) || (piece[0] === 'b' && to.row === 0))) {
                 isPawnPromotionAttempt = true;
@@ -187,7 +234,7 @@ function handleClick(row, col) {
                     row: to.row,
                     col: to.col,
                     color: piece[0],
-                }
+                };
                 selected = null;
                 renderBoard();
                 return;
@@ -216,6 +263,7 @@ function handleClick(row, col) {
                 gameOver = true;
             }
 
+            placeAudio.play();
         } else {
             console.log('Move invalid: This move would leave your king in check.');
         }
@@ -440,11 +488,19 @@ function hasLegalMoves(color) {
                 for (let r = 0; r < 8; r++) {
                     for (let c = 0; c < 8; c++) {
                         const to = { row: r, col: c };
-
                         if (isMoveValid(piece, from, to, board)) {
                             if (simulateMoveAndTest(piece, from, to, color)) {
                                 console.log(`Found legal escape for ${color}: ${piece} ${from.row},${from.col} -> ${to.row},${to.col}`);
                                 return true;
+                            }
+                        }
+
+                        if (enableIlVaticano && piece[1] === 'B' && board[r][c][1] === 'B' && board[r][c][0] === color) {
+                            if (isIlVaticanoValid(from, {row:r, col:c}, board, color)) {
+                                if (simulateMoveAndTest(piece, from, {row:r, col:c}, color)) {
+                                    console.log(`Found legal Il Vaticano escape for ${color}: ${piece} ${from.row},${from.col} with ${board[r][c]} ${r},${c}`);
+                                    return true;
+                                }
                             }
                         }
                     }
@@ -460,54 +516,82 @@ function simulateMoveAndTest(piece, from, to, color) {
     const tempCastlingRights = { ...castlingRights };
     const tempLastMove = lastMove ? { ...lastMove } : null;
 
-    let capturedPieceInSimulation = tempBoard[to.row][to.col];
+    const originalToPiece = tempBoard[to.row][to.col];
+
+    let capturedPieceInSimulation = originalToPiece;
 
     const isKing = piece[1] === 'K';
     const isPawn = piece[1] === 'P';
+    const isBishop = piece[1] === 'B';
 
-    const isSimulatedCastling = enableCastling && isKing && Math.abs(from.col - to.col) === 2 &&
-                                isCastlingValid(from, to, tempBoard, color);
+    let performedSpecialMove = false;
 
-    let isSimulatedEnPassant = false;
+    if (enableIlVaticano && isBishop && originalToPiece && originalToPiece[1] === 'B' && originalToPiece[0] === color && (from.row !== to.row || from.col !== to.col)) {
+        const simulatedIlVaticanoData = isIlVaticanoValid(from, to, tempBoard, color);
+        if (simulatedIlVaticanoData) {
+            performedSpecialMove = true;
 
-    if (enableEnPassant && isPawn && Math.abs(from.col - to.col) === 1 && tempBoard[to.row][to.col] === '.') {
-        const dir = piece[0] === 'w' ? 1 : -1;
-        const potentialCapturedPawnPos = { row: from.row, col: to.col };
-        if (tempLastMove &&
-            tempLastMove.piece[1] === 'P' &&
-            tempLastMove.piece[0] !== piece[0] &&
-            Math.abs(tempLastMove.from.row - tempLastMove.to.row) === 2 &&
-            tempLastMove.to.row === potentialCapturedPawnPos.row &&
-            tempLastMove.to.col === potentialCapturedPawnPos.col) {
-            isSimulatedEnPassant = true;
-            capturedPieceInSimulation = tempBoard[to.row - dir][to.col];
+            simulatedIlVaticanoData.capturedPawns.forEach(pawnPos => {
+                tempBoard[pawnPos.row][pawnPos.col] = '.';
+            });
+
+            const firstBishopPieceSim = piece;
+            const secondBishopPieceSim = originalToPiece;
+
+            tempBoard[from.row][from.col] = '.';
+            tempBoard[to.row][to.col] = '.';
+
+            tempBoard[to.row][to.col] = firstBishopPieceSim;
+            tempBoard[from.row][from.col] = secondBishopPieceSim;
+
+            capturedPieceInSimulation = null;
         }
     }
 
-    if (isSimulatedCastling) {
-        const kingRow = from.row;
-        let rookFromCol, rookToCol;
-        if (to.col === 6) { rookFromCol = 7; rookToCol = 5; }
-        else { rookFromCol = 0; rookToCol = 3; }
+    if (!performedSpecialMove) {
+        const isSimulatedCastling = enableCastling && isKing && Math.abs(from.col - to.col) === 2 &&
+                                    isCastlingValid(from, to, tempBoard, color);
 
-        tempBoard[to.row][to.col] = piece;
-        tempBoard[from.row][from.col] = '.';
-        tempBoard[kingRow][rookToCol] = tempBoard[kingRow][rookFromCol];
-        tempBoard[kingRow][rookFromCol] = '.';
-    } else {
-        tempBoard[to.row][to.col] = piece;
-        tempBoard[from.row][from.col] = '.';
-        if (isSimulatedEnPassant) {
+        let isSimulatedEnPassant = false;
+        if (enableEnPassant && isPawn && Math.abs(from.col - to.col) === 1 && originalToPiece === '.') {
             const dir = piece[0] === 'w' ? 1 : -1;
-            tempBoard[to.row - dir][to.col] = '.';
+            const potentialCapturedPawnPos = { row: from.row, col: to.col };
+            if (tempLastMove &&
+                tempLastMove.piece[1] === 'P' &&
+                tempLastMove.piece[0] !== piece[0] &&
+                Math.abs(tempLastMove.from.row - tempLastMove.to.row) === 2 &&
+                tempLastMove.to.row === potentialCapturedPawnPos.row &&
+                tempLastMove.to.col === potentialCapturedPawnPos.col) {
+                isSimulatedEnPassant = true;
+                capturedPieceInSimulation = tempBoard[to.row - dir][to.col];
+            }
+        }
+
+        if (isSimulatedCastling) {
+            const kingRow = from.row;
+            let rookFromCol, rookToCol;
+            if (to.col === 6) { rookFromCol = 7; rookToCol = 5; }
+            else { rookFromCol = 0; rookToCol = 3; }
+
+            tempBoard[to.row][to.col] = piece;
+            tempBoard[from.row][from.col] = '.';
+            tempBoard[kingRow][rookToCol] = tempBoard[kingRow][rookFromCol];
+            tempBoard[kingRow][rookFromCol] = '.';
+        } else {
+            tempBoard[to.row][to.col] = piece;
+            tempBoard[from.row][from.col] = '.';
+            if (isSimulatedEnPassant) {
+                const dir = piece[0] === 'w' ? 1 : -1;
+                tempBoard[to.row - dir][to.col] = '.';
+            }
+        }
+
+        if (enablePawnPromotion && isPawn && ((color === 'w' && to.row === 7) || (color === 'b' && to.row === 0))) {
+            tempBoard[to.row][to.col] = color + 'Q';
         }
     }
 
-    if (enablePawnPromotion && isPawn && ((color === 'w' && to.row === 7) || (color === 'b' && to.row === 0))) {
-        tempBoard[to.row][to.col] = color + 'Q';
-    }
-
-    if (isKing) {
+    if (isKing && !performedSpecialMove) {
         if (piece[0] === 'w') {
             tempCastlingRights.wK = false;
             tempCastlingRights.wQ = false;
@@ -516,23 +600,25 @@ function simulateMoveAndTest(piece, from, to, color) {
             tempCastlingRights.bQ = false;
         }
     }
-
     if (piece === 'wR') { if (from.row === 0 && from.col === 0) tempCastlingRights.wQ = false; if (from.row === 0 && from.col === 7) tempCastlingRights.wK = false; }
     else if (piece === 'bR') { if (from.row === 7 && from.col === 0) tempCastlingRights.bQ = false; if (from.row === 7 && from.col === 7) tempCastlingRights.bK = false; }
-    if (capturedPieceInSimulation === 'wR') { if (to.row === 0 && to.col === 0) tempCastlingRights.wQ = false; if (to.row === 0 && to.col === 7) tempCastlingRights.wK = false; }
-    else if (capturedPieceInSimulation === 'bR') { if (to.row === 7 && to.col === 0) tempCastlingRights.bQ = false; if (to.row === 7 && to.col === 7) tempCastlingRights.bK = false; }
+    if (originalToPiece === 'wR') { if (to.row === 0 && to.col === 0) tempCastlingRights.wQ = false; if (to.row === 0 && to.col === 7) tempCastlingRights.wK = false; }
+    else if (originalToPiece === 'bR') { if (to.row === 7 && to.col === 0) tempCastlingRights.bQ = false; if (to.row === 7 && to.col === 7) tempCastlingRights.bK = false; }
 
     let simulatedLastMove = null;
-    if (enableEnPassant && isPawn && Math.abs(from.row - to.row) === 2) {
+    if (!performedSpecialMove && enableEnPassant && isPawn && Math.abs(from.row - to.row) === 2) {
         simulatedLastMove = { piece: tempBoard[to.row][to.col], from: from, to: to };
     }
 
     let kingPos;
-    if (isKing) {
+    if (performedSpecialMove) {
+        kingPos = findKingPosition(color, tempBoard);
+    } else if (isKing) {
         kingPos = { row: to.row, col: to.col };
     } else {
         kingPos = findKingPosition(color, tempBoard);
     }
+
     if (!kingPos) {
         console.warn(`King not found for ${color} during simulation. This might indicate an error in board state or king tracking.`);
         return false;
@@ -542,6 +628,74 @@ function simulateMoveAndTest(piece, from, to, color) {
 
     return !stillInCheck;
 }
+
+function isIlVaticanoValid(bishop1Pos, bishop2Pos, boardState, color) {
+    if (!enableIlVaticano) return false;
+
+    const opponent = color === 'w' ? 'b' : 'w';
+    const b1 = boardState[bishop1Pos.row][bishop1Pos.col];
+    const b2 = boardState[bishop2Pos.row][bishop2Pos.col];
+
+    if (!b1 || b1[0] !== color || b1[1] !== 'B' || !b2 || b2[0] !== color || b2[1] !== 'B') {
+        return false;
+    }
+
+    const onSameRank = bishop1Pos.row === bishop2Pos.row;
+    const onSameFile = bishop1Pos.col === bishop2Pos.col;
+
+    if (!onSameRank && !onSameFile) {
+        return false;
+    }
+
+    let interveningSquares = [];
+    let isValidSpacing = false;
+
+    if (onSameRank) {
+        const minCol = Math.min(bishop1Pos.col, bishop2Pos.col);
+        const maxCol = Math.max(bishop1Pos.col, bishop2Pos.col);
+        if (maxCol - minCol - 1 === 2) {
+            isValidSpacing = true;
+            for (let c = minCol + 1; c < maxCol; c++) {
+                interveningSquares.push({ row: bishop1Pos.row, col: c });
+            }
+        }
+    } else if (onSameFile) {
+        const minRow = Math.min(bishop1Pos.row, bishop2Pos.row);
+        const maxRow = Math.max(bishop1Pos.row, bishop2Pos.row);
+        if (maxRow - minRow - 1 === 2) {
+            isValidSpacing = true;
+            for (let r = minRow + 1; r < maxRow; r++) {
+                interveningSquares.push({ row: r, col: bishop1Pos.col });
+            }
+        }
+    }
+
+    if (!isValidSpacing || interveningSquares.length !== 2) {
+        return false;
+    }
+
+    let enemyPawnsInBetween = [];
+    for (const sq of interveningSquares) {
+        const pieceOnSquare = boardState[sq.row][sq.col];
+        if (pieceOnSquare && pieceOnSquare[0] === opponent && pieceOnSquare[1] === 'P') {
+            enemyPawnsInBetween.push(sq);
+        } else {
+            return false;
+        }
+    }
+
+    if (enemyPawnsInBetween.length !== 2) {
+        return false;
+    }
+
+    return {
+        type: 'ilVaticano',
+        bishop1Pos: bishop1Pos,
+        bishop2Pos: bishop2Pos,
+        capturedPawns: enemyPawnsInBetween
+    };
+}
+
 
 function findKingPosition(color, boardState) {
     const kingChar = color === 'w' ? 'wK' : 'bK';
@@ -587,6 +741,10 @@ function isSquareAttacked(target, color, boardState, castlingState, lastMoveStat
 
 function setupPromotionChoices(color) {
     const promotionChoicesDiv = document.querySelector('.promotion-choices');
+    if (!promotionChoicesDiv) {
+        console.error("Promotion choices div not found!");
+        return;
+    }
     promotionChoicesDiv.innerHTML = '';
 
     const promotionPieces = ['Q', 'R', 'B', 'N'];
@@ -633,6 +791,38 @@ function completePawnPromotion(choice) {
     renderBoard();
 }
 
+
+function resetBoard() {
+    board = INITIAL_BOARD.map(row => [...row]);
+
+    currentTurn = 'w';
+    gameOver = false;
+    selected = null;
+    castlingRights = {
+        wK: true,
+        wQ: true,
+        bK: true,
+        bQ: true,
+    };
+    lastMove = null;
+    pendingPromotion = null;
+
+    const promotionOverlay = document.getElementById('promotion-overlay');
+    if (promotionOverlay) {
+        promotionOverlay.style.display = 'none';
+    }
+
+    document.getElementById('castling-toggle').textContent = enableCastling ? '♖ Disable Castling' : '♖ Enable Castling';
+    document.getElementById('en-passant-toggle').textContent = enableEnPassant ? '♙ Disable En Passant' : '♙ Enable En Passant';
+    document.getElementById('promotion-toggle').textContent = enablePawnPromotion ? '♜ Disable Pawn Promotion' : '♜ Enable Pawn Promotion';
+    document.getElementById('il-vaticano-toggle').textContent = enableIlVaticano ? '⚡ Disable Il Vaticano' : '⚡ Enable Il Vaticano';
+
+
+    renderBoard();
+    console.log("Board FLIPPED! Game reset.");
+}
+
+
 document.addEventListener('DOMContentLoaded', renderBoard);
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -652,8 +842,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('pawn-promotion-toggle').addEventListener('click', function(e) {
         enablePawnPromotion = !enablePawnPromotion;
-        e.target.textContent = enablePawnPromotion ? '♙ Disable Pawn Promotion' : '♙ Enable Pawn Promotion';
+        e.target.textContent = enablePawnPromotion ? '♜ Disable Pawn Promotion' : '♜ Enable Pawn Promotion';
         console.log('Pawn Promotion toggled: ' + enablePawnPromotion);
+        if (!enablePawnPromotion && pendingPromotion) {
+            pendingPromotion = null;
+            document.getElementById('promotion-overlay').style.display = 'none';
+        }
+        renderBoard();
+    });
+
+    document.getElementById('il-vaticano-toggle').addEventListener('click', function(e) {
+        enableIlVaticano = !enableIlVaticano;
+        e.target.textContent = enableIlVaticano ? '♙ Disable Il Vaticano' : '♙ Enable Il Vaticano';
+        console.log('Il Vaticano toggled: ' + enableIlVaticano);
+        if (!enableIlVaticano && selected && board[selected.row][selected.col][1] === 'B') {
+            selected = null;
+        }
         renderBoard();
     });
 });

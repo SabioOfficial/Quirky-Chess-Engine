@@ -67,12 +67,23 @@ body {
 }
 
 @keyframes scrolling {
-  from{
-      background-position: 0 0;
-  }
-  to{
-      background-position: 105% 105%;
-  }
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 105% 105%;
+    }
+}
+
+.chess-container {
+    margin-left: auto;
+    margin-right: clamp(0rem, 8vw, 6rem);
+    aspect-ratio: 1 / 1;
+    width: min(90vw, 90vh);
+    max-width: 640px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #chess-board {
@@ -83,8 +94,8 @@ body {
     border-radius: 8px;
     overflow: hidden;
     transition: all 750ms ease;
-    margin-left: auto;
-    margin-right: clamp(0rem, 8vw, 6rem);
+    width: 100%;
+    height: 100%;
 }
 
 #chess-board.white-turn {
@@ -115,6 +126,9 @@ body {
     justify-content: center;
     display: flex;
     box-sizing: border-box;
+
+    user-select: none;
+    -moz-user-select: none;
 }
 
 .chess-col.light-square {
@@ -178,7 +192,7 @@ body {
     flex-direction: row;
     gap: 1rem;
     margin: 0;
-    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 #rule-toggler button {
@@ -196,7 +210,14 @@ body {
     gap: 0.5rem;
     font-size: 1.4rem;
     margin: 0;
+    margin-top: 0.5rem;
     margin-bottom: 0.25rem;
+}
+
+#exit-button {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
 }
 
 #promotion-overlay {
@@ -205,7 +226,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.3);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -213,16 +234,28 @@ body {
 }
 
 #promotion-modal {
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.35);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
+    backdrop-filter: blur(0.5rem);
+    -webkit-backdrop-filter: blur(0.5rem);
 }
 
 .promotion-choices {
     display: flex;
-    gap: 10px;
-    margin-top: 15px;
+    gap: 0.5rem;
     justify-content: center;
+    user-select: none;
+    -moz-user-select: none;
+}
+
+.promotion-choices img {
+    cursor: pointer;
+    transition: all 250ms ease;
+}
+
+.promotion-choices img:hover {
+    filter: invert();
 }
