@@ -93,12 +93,10 @@ function renderBoard() {
 
 function handleClick(row, col) {
     if (gameOver) {
-        console.log('Game is over.');
         return;
     }
 
     if (pendingPromotion) {
-        console.log('Promotion pending. Please choose a promoting piece.');
         return;
     }
 
@@ -108,7 +106,6 @@ function handleClick(row, col) {
 
     if (selected === null) {
         if (clickedPiece === '.' || clickedPiece[0] !== currentTurn) {
-            console.log('Cannot select: empty or not your turn.');
             return;
         }
 
@@ -137,7 +134,7 @@ function handleClick(row, col) {
             lastMove = null;
 
             if (isKingInCheck(currentTurn)) {
-                console.log(`${currentTurn} king is in check.`);
+                
                 if (!hasLegalMoves(currentTurn)) {
                     const winningColor = playerWhoJustMoved === 'w' ? 'White' : 'Black';
                     alert(`Checkmate! ${winningColor} wins!`);
@@ -167,7 +164,7 @@ function handleClick(row, col) {
         return;
     }
 
-    console.log(`Trying to move ${piece} from`, from, 'to', to);
+    
 
     if (isMoveValid(piece, from, to, board)) {
         if (simulateMoveAndTest(piece, from, to, currentTurn)) {
@@ -209,7 +206,7 @@ function handleClick(row, col) {
                 board[from.row][from.col] = '.';
                 board[kingRow][rookToCol] = board[kingRow][rookFromCol];
                 board[kingRow][rookFromCol] = '.';
-                console.log(`Castling performed. King from ${from.row},${from.col} to ${to.row},${to.col}.`);
+                
             } else {
                 board[to.row][to.col] = piece;
                 board[from.row][from.col] = '.';
@@ -217,7 +214,7 @@ function handleClick(row, col) {
                 if (isEnPassantCapture) {
                     const dir = piece[0] === 'w' ? 1 : -1;
                     board[to.row - dir][to.col] = '.';
-                    console.log(`En Passant capture performed at ${to.row - dir},${to.col}.`);
+                    
                 }
             }
 
@@ -250,7 +247,7 @@ function handleClick(row, col) {
             currentTurn = currentTurn === 'w' ? 'b' : 'w';
 
             if (isKingInCheck(currentTurn)) {
-                console.log(`${currentTurn} king is in check.`);
+                
                 if (!hasLegalMoves(currentTurn)) {
                     const winningColor = playerWhoJustMoved === 'w' ? 'White' : 'Black';
                     alert(`Checkmate! ${winningColor} wins!`);
@@ -265,10 +262,10 @@ function handleClick(row, col) {
 
             placeAudio.play();
         } else {
-            console.log('Move invalid: This move would leave your king in check.');
+            
         }
     } else {
-        console.log('Move invalid: Does not follow piece movement rules.');
+        
     }
 
     selected = null;
@@ -490,7 +487,7 @@ function hasLegalMoves(color) {
                         const to = { row: r, col: c };
                         if (isMoveValid(piece, from, to, board)) {
                             if (simulateMoveAndTest(piece, from, to, color)) {
-                                console.log(`Found legal escape for ${color}: ${piece} ${from.row},${from.col} -> ${to.row},${to.col}`);
+                                
                                 return true;
                             }
                         }
@@ -498,7 +495,7 @@ function hasLegalMoves(color) {
                         if (enableIlVaticano && piece[1] === 'B' && board[r][c][1] === 'B' && board[r][c][0] === color) {
                             if (isIlVaticanoValid(from, {row:r, col:c}, board, color)) {
                                 if (simulateMoveAndTest(piece, from, {row:r, col:c}, color)) {
-                                    console.log(`Found legal Il Vaticano escape for ${color}: ${piece} ${from.row},${from.col} with ${board[r][c]} ${r},${c}`);
+                                    
                                     return true;
                                 }
                             }
@@ -775,7 +772,7 @@ function completePawnPromotion(choice) {
     currentTurn = currentTurn === 'w' ? 'b' : 'w';
 
     if (isKingInCheck(currentTurn)) {
-        console.log(`${currentTurn} king is in check.`);
+        
         if (!hasLegalMoves(currentTurn)) {
             const winningColor = playerWhoJustMoved === 'w' ? 'White' : 'Black';
             alert(`Checkmate! ${winningColor} wins!`);
@@ -819,7 +816,7 @@ function resetBoard() {
 
 
     renderBoard();
-    console.log("Board FLIPPED! Game reset.");
+    
 }
 
 
@@ -829,21 +826,21 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('castling-toggle').addEventListener('click', function(e) { 
         enableCastling = !enableCastling;
         e.target.textContent = enableCastling ? '♖ Disable Castling' : '♖ Enable Castling';
-        console.log('Castling toggled: ' + enableCastling);
+        
         renderBoard();
     });
 
     document.getElementById('en-passant-toggle').addEventListener('click', function(e) {
         enableEnPassant = !enableEnPassant;
         e.target.textContent = enableEnPassant ? '♙ Disable En Passant' : '♙ Enable En Passant';
-        console.log('En Passant toggled: ' + enableEnPassant);
+        
         renderBoard();
     });
 
     document.getElementById('pawn-promotion-toggle').addEventListener('click', function(e) {
         enablePawnPromotion = !enablePawnPromotion;
         e.target.textContent = enablePawnPromotion ? '♜ Disable Pawn Promotion' : '♜ Enable Pawn Promotion';
-        console.log('Pawn Promotion toggled: ' + enablePawnPromotion);
+        
         if (!enablePawnPromotion && pendingPromotion) {
             pendingPromotion = null;
             document.getElementById('promotion-overlay').style.display = 'none';
@@ -854,7 +851,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('il-vaticano-toggle').addEventListener('click', function(e) {
         enableIlVaticano = !enableIlVaticano;
         e.target.textContent = enableIlVaticano ? '♙ Disable Il Vaticano' : '♙ Enable Il Vaticano';
-        console.log('Il Vaticano toggled: ' + enableIlVaticano);
+        
         if (!enableIlVaticano && selected && board[selected.row][selected.col][1] === 'B') {
             selected = null;
         }
