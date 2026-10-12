@@ -66,7 +66,7 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-16 justify-center items-center text-center h-dvh px-[25dvw]">
       <div className="flex flex-col justify-center items-center">
-        <img src="Logo.png" alt="Quirky Chess Engine Logo" height={200} width={200} />
+        <img src="Logo.png" alt="Quirky Chess Engine Logo" height={200} width={200} className="dark:invert dark:hue-rotate-180" />
         <div className="flex flex-col gap-3">
           <h1 className="text-3xl">
             Quirky Chess Engine&nbsp;

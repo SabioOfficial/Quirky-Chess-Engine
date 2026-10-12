@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @font-face {
   font-family: "Visby Round CF";
@@ -11,9 +12,17 @@
 html,
 body {
   font-family: "Visby Round CF", sans-serif;
+  color: #000000;
   background: conic-gradient(from 90deg at 1.1px 1.1px, #ffffff 25%, #ececec 0);
   background-size: 22px 22px;
   animation: scrolling 60s linear infinite;
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+  color: #ffffff;
+  background: conic-gradient(from 90deg at 1.1px 1.1px, #1f1f1f 25%, #131313 0);
+  background-size: 22px 22px;
 }
 
 @keyframes scrolling {
