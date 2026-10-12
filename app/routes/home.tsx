@@ -65,57 +65,66 @@ export default function Home() {
   const selectedPiece = selected ? board[selected.row][selected.col] : null;
 
   return (
-    <div className="flex flex-col gap-16 justify-center items-center text-center h-dvh px-[25dvw]">
-      <div className="flex flex-col justify-center items-center">
-        <img src="Logo.png" alt="Quirky Chess Engine Logo" height={200} width={200} className="dark:invert dark:hue-rotate-180" />
-        <div className="flex flex-col gap-3">
-          <h1 className="text-3xl">
-            Quirky Chess Engine&nbsp;
-            <span className="text-base">v1.0&nbsp;
-              <span className="bg-linear-to-b from-[#4ab1ff] to-[#4a83ff] bg-clip-text text-transparent" data-tooltip-id="reloaded" data-tooltip-place="bottom-start">Reloaded</span>
-              <Tooltip id="reloaded">
-                Quirky Chess Engine is back, now running on React Router v8,<br />
-                which will make development so much easier.
-              </Tooltip>
-            </span>
-          </h1>
-          <p>A customizable local dual-player TypeScript-based chess engine. Capture the pawn to start, capture the bishop to change themes.</p>
+    <div className="flex flex-row pl-[4dvw]">
+      <div className="flex flex-col items-start justify-center text-left h-dvh grow">
+        <div className="flex flex-row gap-4">
+          <img src="Logo.png" alt="Quirky Chess Engine Logo" className="h-[20dvh] dark:invert dark:hue-rotate-180" />
+          <div className="flex flex-col gap-3 items-start">
+            <h1 className="text-3xl">
+              Quirky Chess Engine&nbsp;
+              <span className="text-base">v1.0&nbsp;
+                <span className="bg-linear-to-b from-[#4ab1ff] to-[#4a83ff] bg-clip-text text-transparent" data-tooltip-id="reloaded" data-tooltip-place="bottom-start">Reloaded</span>
+                <Tooltip id="reloaded">
+                  Quirky Chess Engine is back, now running on React Router v8,<br />
+                  which will make development so much easier.
+                </Tooltip>
+              </span>
+            </h1>
+            <p>A customizable local dual-player TypeScript-based chess engine. Capture the pawn to start, capture the bishop to change themes.</p>
+            <div id="mini-chess-board" className="flex flex-col items-center rounded-lg overflow-hidden mt-4">
+              {board.map((boardRow, row) => (
+                <div key={row} className="flex">
+                  {boardRow.map((piece, col) => {
+                    const isLight = (row + col) % 2 === 0;
+                    const isSelected = selected?.row === row && selected?.col === col;
+                    const isAvailable = !!selectedPiece && selected !== null && isMoveValid(selectedPiece, selected, { row, col }, board);
+
+                    const background = isLight ? "bg-[#F2E5D3]" : piece && getPieceColor(piece) === "b" ? "bg-[#765A4A]" : "bg-[#5E463E]";
+
+                    return (
+                      <div key={col} onClick={() => handleSquareClick(row, col)} className={[
+                        "relative flex items-center justify-center select-none size-[clamp(2.5rem,8vw,5rem)]",
+                        background,
+                        (isSelected || isAvailable) && "after:content-[''] after:absolute after:inset-[4%] after:border-2 after:pointer-events-none",
+                        isSelected && "after:border-white/85",
+                        isAvailable && "after:border-[rgba(0,162,255,0.85)] brightness-[1.08] transition-[filter] duration-200 hover:brightness-[1.12] hover:saturate-[1.1]",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      >
+                        {piece && (
+                          <img
+                            src={`pieces/standard/${piece}.png`}
+                            alt={piece}
+                            className="size-[clamp(2.5rem,8vw,5rem)] pointer-events-none"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-
-      <div id="mini-chess-board" className="flex flex-col items-center rounded-lg overflow-hidden">
-        {board.map((boardRow, row) => (
-          <div key={row} className="flex">
-            {boardRow.map((piece, col) => {
-              const isLight = (row + col) % 2 === 0;
-              const isSelected = selected?.row === row && selected?.col === col;
-              const isAvailable = !!selectedPiece && selected !== null && isMoveValid(selectedPiece, selected, { row, col }, board);
-
-              const background = isLight ? "bg-[#F2E5D3]" : piece && getPieceColor(piece) === "b" ? "bg-[#765A4A]" : "bg-[#5E463E]";
-
-              return (
-                <div key={col} onClick={() => handleSquareClick(row, col)} className={[
-                  "relative flex items-center justify-center select-none size-[clamp(2.5rem,8vw,5rem)]",
-                  background,
-                  (isSelected || isAvailable) && "after:content-[''] after:absolute after:inset-[4%] after:border-2 after:pointer-events-none",
-                  isSelected && "after:border-white/85",
-                  isAvailable && "after:border-[rgba(0,162,255,0.85)] brightness-[1.08] transition-[filter] duration-200 hover:brightness-[1.12] hover:saturate-[1.1]",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                >
-                  {piece && (
-                    <img
-                      src={`pieces/standard/${piece}.png`}
-                      alt={piece}
-                      className="size-[clamp(2.5rem,8vw,5rem)] pointer-events-none"
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ))}
+      <div className="flex flex-col gap-4 items-start mx-[1dvw] my-[3dvh] py-[2dvh] px-[2dvw] w-[33dvw] bg-black/10 dark:bg-black/20 rounded-2xl">
+        <h2 className="text-2xl self-center">Latest News</h2>
+        <hr className="border-2 rounded-full border-black/80 dark:border-white/80 w-full" />
+        <div className="flex flex-col gap-2">
+          <h3 className="text-3xl whitespace-nowrap">Framework Upgrade</h3>
+          <p className="text-sm">Quirky Chess Engine is being rewritten into TypeScript with the React Router v8 framework! New features are arriving soon.</p>
+        </div>
       </div>
     </div>
   );
