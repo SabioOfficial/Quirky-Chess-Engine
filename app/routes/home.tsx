@@ -118,7 +118,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-4 items-start mx-[1dvw] my-[3dvh] py-[2dvh] px-[2dvw] w-[33dvw] bg-black/10 dark:bg-black/20 rounded-2xl">
+      <div className="flex flex-col gap-4 items-start mx-[1dvw] my-[3dvh] py-[2dvh] px-[2dvw] w-[33dvw] bg-black/5 dark:bg-black/10 rounded-2xl">
         <h2 className="text-2xl self-center">Latest News</h2>
         <hr className="border-2 rounded-full border-black/80 dark:border-white/80 w-full" />
         <div className="flex flex-col gap-2">
