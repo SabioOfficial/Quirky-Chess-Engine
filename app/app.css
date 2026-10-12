@@ -1,15 +1,26 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+@font-face {
+  font-family: "Visby Round CF";
+  src: url("./assets/fonts/VisbyRoundCF-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  font-family: "Visby Round CF", sans-serif;
+  background: conic-gradient(from 90deg at 1.1px 1.1px, #ffffff 25%, #ececec 0);
+  background-size: 22px 22px;
+  animation: scrolling 60s linear infinite;
+}
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+@keyframes scrolling {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 105% 105%;
+    }
 }
