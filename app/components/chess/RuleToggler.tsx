@@ -64,7 +64,7 @@ function RuleGroup({ title, ruleDefinitions, rules, onToggle }: RuleGroupPropert
         type="button"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((open) => !open)}
-        className="mt-2 mb-1 flex cursor-pointer gap-2 text-left text-[1.4rem]"
+        className="mt-2 mb-1 flex items-center cursor-pointer gap-2 text-left text-[1.4rem]"
       >
         {title}
         <ChevronIcon />
