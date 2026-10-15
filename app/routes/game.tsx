@@ -1,5 +1,5 @@
 import type { GameStatus, PieceColor } from "~/lib/chess/types";
-import type { Route } from "./+types/home";
+import type { Route } from "./+types/game";
 import { getOpponent } from "~/lib/chess/rules";
 import { useNavigate } from "react-router";
 import { useChessGame } from "~/hooks/useChessGame";

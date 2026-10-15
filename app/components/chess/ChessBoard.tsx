@@ -1,7 +1,7 @@
 import { getPieceColor, isSamePosition } from "~/lib/chess/rules";
 import type { Board, PieceColor, Position } from "~/lib/chess/types";
 
-const classNames = (...names: Array<string | false | null | undefined>) => names.filter(Boolean).join("");
+const classNames = (...names: Array<string | false | null | undefined>) => names.filter(Boolean).join(" ");
 
 interface ChessBoardProperties {
   board: Board;
