@@ -20,18 +20,23 @@ const ILLEGAL_RULES: RuleDefinition[] = [
 
 function HoldToExitButton({ onExit }: { onExit: () => void }) {
   const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isHolding, setIsHolding] = useState(false);
 
   const cancelHold = () => {
     if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
     holdTimerRef.current = null;
+    setIsHolding(false);
   }
 
   const startHold = () => {
     cancelHold();
+    setIsHolding(true);
     holdTimerRef.current = setTimeout(onExit, 1500);
   }
 
-  useEffect(() => () => cancelHold(), []);
+  useEffect(() => () => {
+    if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+  }, []);
 
   return (
     <button
@@ -40,9 +45,19 @@ function HoldToExitButton({ onExit }: { onExit: () => void }) {
       onPointerUp={cancelHold}
       onPointerLeave={cancelHold}
       onPointerCancel={cancelHold}
-      className="flex cursor-pointer select-none gap-2 text-left"
+      className="relative -my-1 -ml-3 flex cursor-pointer select-none items-center gap-2 self-start overflow-hidden rounded-md px-3 py-1 text-left"
     >
       <Undo2 /> Back (Hold)
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 flex items-center gap-2 bg-black px-3 py-1 text-white dark:bg-white dark:text-black"
+        style={{
+          clipPath: isHolding ? "inset(0 0 0 0)" : "inset(0 100% 0 0)",
+          transition: `clip-path ${isHolding ? 1500 : 150}ms linear`,
+        }}
+      >
+        <Undo2 /> Back (Hold)
+      </span>
     </button>
   );
 }
