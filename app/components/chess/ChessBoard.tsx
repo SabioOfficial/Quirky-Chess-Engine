@@ -1,7 +1,6 @@
-import { getPieceColor, isSamePosition } from "~/lib/chess/rules";
+import { FILE_LABELS, getPieceColor, isSamePosition } from "~/lib/chess/rules";
 import type { Board, PieceColor, Position } from "~/lib/chess/types";
 
-const FILE_LABELS = ["h", "g", "f", "e", "d", "c", "b", "a"];
 const classNames = (...names: Array<string | false | null | undefined>) => names.filter(Boolean).join(" ");
 
 interface ChessBoardProperties {

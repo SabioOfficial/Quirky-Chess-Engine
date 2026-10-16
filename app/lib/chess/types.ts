@@ -24,6 +24,7 @@ export type CastlingRights = Record<PieceColor, Record<CastlingSide, boolean>>;
 export interface PendingPromotion {
   position: Position;
   color: PieceColor;
+  notation: string;
 }
 
 export interface GameState {
@@ -32,6 +33,7 @@ export interface GameState {
   castlingRights: CastlingRights;
   doubleSteppedPawn: Position | null;
   pendingPromotion: PendingPromotion | null;
+  moveHistory: string[];
 }
 
 export interface RuleToggles {

@@ -122,7 +122,7 @@ export default function Home() {
         <h2 className="text-2xl self-center">Latest News</h2>
         <hr className="border-2 rounded-full border-black/80 dark:border-white/80 w-full" />
         <div className="flex flex-col gap-2">
-          <h3 className="text-3xl whitespace-nowrap">Framework Upgrade <span className="bg-blue-500 w-fit px-2 py-0.5 text-sm rounded-sm">MAJOR</span></h3>
+          <h3 className="text-3xl whitespace-nowrap">Framework Upgrade <span className="bg-blue-500 w-fit px-2 py-0.5 text-sm rounded-sm text-white">MAJOR</span></h3>
           <p className="text-sm">Quirky Chess Engine is being rewritten into TypeScript with the React Router v8 framework! New features are arriving soon.</p>
         </div>
       </div>

@@ -19,6 +19,11 @@ const PAWN_DIRECTION: Record<PieceColor, number> = { w: 1, b: -1 };
 
 const BACK_RANK: PieceType[] = ["Rook", "Knight", "Bishop", "King", "Queen", "Bishop", "Knight", "Rook"];
 
+export const FILE_LABELS = ["h", "g", "f", "e", "d", "c", "b", "a"];
+export const getSquareName = ({ row, col }: Position) => `${FILE_LABELS[col]}${row + 1}`;
+
+const PIECE_LETTERS: Record<PieceType, string> = { Pawn: "", Knight: "N", Bishop: "B", Rook: "R", Queen: "Q", King: "K" };
+
 export const makePiece = (color: PieceColor, type: PieceType): Piece => `${color}${type}`;
 export const getPieceColor = (piece: Piece): PieceColor => piece[0] as PieceColor;
 export const getPieceType = (piece: Piece): PieceType => piece.slice(1) as PieceType;
@@ -54,6 +59,7 @@ export const createInitialGameState = (): GameState => ({
   },
   doubleSteppedPawn: null,
   pendingPromotion: null,
+  moveHistory: [],
 });
 
 const isStraightLine = (from: Position, to: Position) => from.row === to.row || from.col === to.col;
@@ -278,6 +284,42 @@ export const getGameStatus = (state: GameState, rules: RuleToggles): GameStatus 
   return isInCheck ? "check" : "playing";
 }
 
+const getDisambiguation = (state: GameState, rules: RuleToggles, piece: Piece, { from, to }: Move): string => {
+  const rivals: Position[] = [];
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      const position = { row, col };
+      if (state.board[row][col] !== piece || isSamePosition(position, from)) continue;
+      if (getLegalMoves(state, rules, position).some((move) => isSamePosition(move.to, to))) rivals.push(position);
+    }
+  }
+
+  if (rivals.length === 0) return "";
+  if (!rivals.some((rival) => rival.col === from.col)) return FILE_LABELS[from.col];
+  if (!rivals.some((rival) => rival.row === from.row)) return String(from.row + 1);
+  return getSquareName(from);
+}
+
+const getMoveNotation = (state: GameState, rules: RuleToggles, move: Move): string => {
+  const { from, to, kind } = move;
+  const piece = getPieceAt(state.board, from);
+  if (!piece) return "";
+
+  if (kind === "castling") return to.col < from.col ? "O-O" : "O-O-O";
+  if (kind === "ilVaticano") return `IV${getSquareName(from)}-${getSquareName(to)}`;
+
+  const isCapture = kind === "enPassant" || getPieceAt(state.board, to) !== null;
+  const destination = getSquareName(to);
+
+  if (getPieceType(piece) === "Pawn") return isCapture ? `${FILE_LABELS[from.col]}x${destination}` : destination;
+  return `${PIECE_LETTERS[getPieceType(piece)]}${getDisambiguation(state, rules, piece, move)}${isCapture ? "x" : ""}${destination}`;
+}
+
+const getCheckSuffix = (state: GameState, rules: RuleToggles): string => {
+  const status = getGameStatus(state, rules);
+  return status === "checkmate" ? "#" : status === "check" ? "+" : "";
+}
+
 const revokeRookRight = (rights: CastlingRights, piece: Piece, position: Position) => {
   if (getPieceType(piece) !== "Rook") return;
 
@@ -310,6 +352,7 @@ export const applyMove = (state: GameState, rules: RuleToggles, move: Move): Gam
   const board = applyMoveToBoard(state.board, move);
   const castlingRights = updateCastlingRights(state.castlingRights, movedPiece, move, capturedPiece);
   const isPawn = getPieceType(movedPiece) === "Pawn";
+  const notation = getMoveNotation(state, rules, move);
 
   if (rules.pawnPromotion && isPawn && move.to.row === PROMOTION_ROW[color]) {
     return {
@@ -317,27 +360,31 @@ export const applyMove = (state: GameState, rules: RuleToggles, move: Move): Gam
       board,
       castlingRights,
       doubleSteppedPawn: null,
-      pendingPromotion: { position: move.to, color }
+      pendingPromotion: { position: move.to, color, notation }
     };
   }
 
   const isDoubleStep = isPawn && Math.abs(move.to.row - move.from.row) === 2;
-  return {
+  const nextState: GameState = {
     board,
     currentTurn: getOpponent(color),
     castlingRights,
     doubleSteppedPawn: isDoubleStep ? move.to : null,
     pendingPromotion: null,
-  };
+    moveHistory: state.moveHistory,
+  }
+  return { ...nextState, moveHistory: [...state.moveHistory, notation + getCheckSuffix(nextState, rules)] };
 };
 
-export const completePromotion = (state: GameState, pieceType: PromotionPieceType): GameState => {
+export const completePromotion = (state: GameState, rules: RuleToggles, pieceType: PromotionPieceType): GameState => {
   const { pendingPromotion } = state;
   if (!pendingPromotion) return state;
 
-  const { position, color } = pendingPromotion;
+  const { position, color, notation } = pendingPromotion;
   const board = copyBoard(state.board);
   board[position.row][position.col] = makePiece(color, pieceType);
 
-  return { ...state, board, currentTurn: getOpponent(color), pendingPromotion: null };
+  const nextState: GameState = { ...state, board, currentTurn: getOpponent(color), pendingPromotion: null };
+  const promotionNotation = `${notation}=${PIECE_LETTERS[pieceType]}${getCheckSuffix(nextState, rules)}`;
+  return { ...nextState, moveHistory: [...state.moveHistory, promotionNotation] };
 }

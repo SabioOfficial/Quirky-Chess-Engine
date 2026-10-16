@@ -48,7 +48,7 @@ export function useChessGame() {
   }
 
   const handlePromotionChoice = (pieceType: PromotionPieceType) => {
-    setGameState((current) => completePromotion(current, pieceType));
+    setGameState((current) => completePromotion(current, rules, pieceType));
     playPlaceSound();
   }
 

@@ -6,6 +6,7 @@ import { useChessGame } from "~/hooks/useChessGame";
 import { RuleToggler } from "~/components/chess/RuleToggler";
 import { ChessBoard } from "~/components/chess/ChessBoard";
 import { PromotionModal } from "~/components/chess/PromotionModal";
+import { MoveHistory } from "~/components/chess/MoveHistory";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -63,6 +64,8 @@ export default function Game() {
       )}
 
       <RuleToggler rules={rules} onToggle={toggleRule} onExit={() => navigate("/")} />
+
+      <MoveHistory moves={gameState.moveHistory} />
 
       <div className="mr-[clamp(0rem,8vw,6rem)] ml-auto flex aspect-square w-[min(90vw,90vh)] max-w-160 items-center justify-center">
         <ChessBoard
