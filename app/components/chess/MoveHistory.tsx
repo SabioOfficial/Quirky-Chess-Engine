@@ -1,4 +1,6 @@
+import { Info } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { Tooltip } from "react-tooltip";
 
 interface MoveHistoryProperties {
   moves: string[];
@@ -22,10 +24,27 @@ export function MoveHistory({ moves }: MoveHistoryProperties) {
   const renderMove = (moveIndex: number) => {
     const move = moves[moveIndex];
     if (!move) return null;
-    if (moveIndex !== lastMoveIndex) return move;
+
+    const label = moveIndex === lastMoveIndex ? (
+      <span className="rounded bg-black px-1.5 py-0.5 text-white dark:bg-white dark:text-black">{move}</span>
+    ) : (
+      move
+    );
+
+    if (!move.startsWith("IV")) return label;
 
     return (
-      <span className="rounded bg-black px-1.5 py-0.5 text-white dark:bg-white dark:text-black">{move}</span>
+      <span className="inline-flex items-center gap-1">
+        {move}
+        <button
+          type="button"
+          aria-label="What is Il Vaticano?"
+          data-tooltip-id="il-vaticano-info"
+          className="cursor-help opacity-70 hover:opacity-100"
+        >
+          <Info size={12} />
+        </button>
+      </span>
     )
   }
 
@@ -35,7 +54,7 @@ export function MoveHistory({ moves }: MoveHistoryProperties) {
         ref={scrollRef}
         className="max-h-[min(90vw,90vh,40rem)] min-w-0 grow overflow-auto rounded-lg border border-black/10 bg-white/50 shadow-sm dark:border-white/15 dark:bg-black/30"
       >
-        <table aria-label="Move history" className="w-full border-separate border-spacing-0 text-left text-base tabular-nums">
+        <table aria-label="Move history" className="w-full whitespace-nowrap border-separate border-spacing-0 text-left text-base tabular-nums">
           <thead>
             <tr className="text-xs uppercase tracking-wide">
               {["Move", "White", "Black"].map((label) => (
@@ -68,6 +87,12 @@ export function MoveHistory({ moves }: MoveHistoryProperties) {
           </tbody>
         </table>
       </div>
+
+      <Tooltip id="il-vaticano-info" positionStrategy="fixed" style={{ maxWidth: "18rem", zIndex: 50 }}>
+        Il Vaticano is a fairy special bishop move by which two bishops of the same color, standing on the same rank or file with exactly two enemy pawns between
+        them, swap places and capture both pawns in a single move. Select one bishop, then capture the other. It can't be played if it would leave your own king in
+        check.
+      </Tooltip>
     </div>
   )
 }

@@ -115,7 +115,7 @@ export function RuleToggler({ rules, onToggle, onExit }: RuleTogglerProperties) 
         Toggle Rules
       </h2>
       <RuleGroup title="Legal Moves" ruleDefinitions={LEGAL_RULES} rules={rules} onToggle={onToggle} />
-      <RuleGroup title="Illegal Moves" ruleDefinitions={ILLEGAL_RULES} rules={rules} onToggle={onToggle} />
+      <RuleGroup title="Fairy Moves" ruleDefinitions={ILLEGAL_RULES} rules={rules} onToggle={onToggle} />
     </div>
   )
 }
