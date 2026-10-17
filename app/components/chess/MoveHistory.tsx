@@ -31,10 +31,10 @@ export function MoveHistory({ moves }: MoveHistoryProperties) {
       move
     );
 
-    if (!move.startsWith("IV")) return label;
+    if (!move.startsWith("B-O-O-B")) return label;
 
     return (
-      <span className="inline-flex items-center gap-1">
+      <span className="inline-flex items-center gap-1.5">
         {move}
         <button
           type="button"
@@ -42,7 +42,7 @@ export function MoveHistory({ moves }: MoveHistoryProperties) {
           data-tooltip-id="il-vaticano-info"
           className="cursor-help opacity-70 hover:opacity-100"
         >
-          <Info size={12} />
+          <Info size={16} />
         </button>
       </span>
     )

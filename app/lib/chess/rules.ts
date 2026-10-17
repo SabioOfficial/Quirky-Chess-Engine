@@ -306,7 +306,7 @@ const getMoveNotation = (state: GameState, rules: RuleToggles, move: Move): stri
   if (!piece) return "";
 
   if (kind === "castling") return to.col < from.col ? "O-O" : "O-O-O";
-  if (kind === "ilVaticano") return `IV${getSquareName(from)}-${getSquareName(to)}`;
+  if (kind === "ilVaticano") return "B-O-O-B"; // Lore accurate Il Vaticano move notation. Not the other thing.
 
   const isCapture = kind === "enPassant" || getPieceAt(state.board, to) !== null;
   const destination = getSquareName(to);
