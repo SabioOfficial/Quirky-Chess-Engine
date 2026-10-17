@@ -49,7 +49,7 @@ export function MoveHistory({ moves }: MoveHistoryProperties) {
   }
 
   return (
-    <div className="flex min-w-0 flex-1 mx-8">
+    <div className="flex min-w-0 flex-1">
       <div
         ref={scrollRef}
         className="max-h-[min(90vw,90vh,40rem)] min-w-0 grow overflow-auto rounded-lg border border-black/10 bg-white/50 shadow-sm dark:border-white/15 dark:bg-black/30"

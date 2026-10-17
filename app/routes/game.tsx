@@ -48,7 +48,7 @@ export default function Game() {
   const statusMessage = getStatusMessage(status, gameState.currentTurn);
 
   return (
-    <div className="flex h-dvh items-center justify-center text-black dark:text-white">
+    <div className="flex gap-[3dvw] h-dvh items-center justify-center text-black dark:text-white">
       {statusMessage && (
         <div
           role="status"
