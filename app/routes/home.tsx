@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router";
 import type { Route } from "./+types/home";
 import { useEffect, useState } from "react";
-import { Tooltip } from "react-tooltip";
 import { INITIAL_BOARD, type Position, type Board, isMoveValid, getPieceColor } from "~/lib/miniBoard";
 import { applyTheme, getStoredTheme, getSystemTheme, toggleTheme } from "~/lib/theme";
 
@@ -72,12 +71,11 @@ export default function Home() {
           <div className="flex flex-col gap-3 items-start">
             <h1 className="text-3xl">
               Quirky Chess Engine&nbsp;
-              <span className="text-base">v1.0&nbsp;
-                <span className="bg-linear-to-b from-[#4ab1ff] to-[#4a83ff] bg-clip-text text-transparent" data-tooltip-id="reloaded" data-tooltip-place="bottom-start">Reloaded</span>
-                <Tooltip id="reloaded">
-                  Quirky Chess Engine is back, now running on React Router v8,<br />
-                  which will make development so much easier.
-                </Tooltip>
+              <span className="text-lg group relative inline-block" tabIndex={0}>v1.0&nbsp;
+                <span className="bg-linear-to-b from-[#4ab1ff] to-[#4a83ff] bg-clip-text text-transparent">Reloaded</span>
+                <span role="tooltip" className="pointer-events-none absolute left-0 top-full z-10 mt-2 w-max max-w-xs rounded-md bg-black/90 px-3 py-2 text-sm text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                  Quirky Chess Engine is back, now running on React Router v8, which will make development so much easier.
+                </span>
               </span>
             </h1>
             <p>A customizable local dual-player TypeScript-based chess engine. Capture the pawn to start, capture the bishop to change themes.</p>
