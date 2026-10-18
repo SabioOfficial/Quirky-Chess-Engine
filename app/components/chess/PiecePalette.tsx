@@ -28,7 +28,7 @@ export function PiecePalette({ tool, onSelect }: PiecePalleteProperties) {
                 aria-pressed={tool === piece}
                 onClick={() => onSelect(piece)}
                 className={classNames(
-                  "size-12 cursor-pointer rounded-md bg-[#F2E5D3] p-0.5 ring-2", tool === piece ? "ring-[#4a83ff]" : "ring-transparent hover:ring-black/20"
+                  "size-12 cursor-pointer rounded-md bg-[#F2E5D3] dark:bg-[#5E463E] p-0.5 ring-2", tool === piece ? "ring-[#4a83ff]" : "ring-transparent hover:ring-black/20"
                 )}
               >
                 <img src={`/pieces/standard/${piece}.png`} className="size-full object-contain" />

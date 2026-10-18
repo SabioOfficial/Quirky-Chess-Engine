@@ -15,7 +15,7 @@ export function MoveHistory({ moves, startsWithBlack = false }: MoveHistoryPrope
     if (scroller) scroller.scrollTop = scroller.scrollHeight;
   }, [moves.length]);
 
-  const displayMoves = startsWithBlack && moves.length > 0 ? ["...", ...moves] : moves;
+  const displayMoves = startsWithBlack && moves.length > 0 ? ["Skipped", ...moves] : moves;
 
   const turns = Array.from({ length: Math.ceil(displayMoves.length / 2) }, (_, index) => ({
     number: index + 1,
