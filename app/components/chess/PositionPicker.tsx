@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 import { PRESET_POSITIONS } from "~/lib/chess/positions";
 
 interface PositionPickerProperties {
@@ -73,6 +74,7 @@ export function PositionPicker({ startingFen, onLoad, onRestart }: PositionPicke
             <button type="button" onClick={onRestart} className="cursor-pointer">
               Restart
             </button>
+            <Link to={`/editor?fen=${encodeURIComponent(startingFen)}`}>Editor</Link>
           </div>
         </>
       )}

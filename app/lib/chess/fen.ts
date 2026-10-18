@@ -172,7 +172,8 @@ export const toFen = ({ board, currentTurn, castlingRights, doubleSteppedPawn = 
   const castling = COLORS.flatMap((color) => SIDES.filter((side) => castlingRights[color][side] && availableRights[color][side]).map((side) => CASTLING_LETTERS[color][side])).join("");
 
   const pawn = doubleSteppedPawn ? getPieceAt(board, doubleSteppedPawn) : null;
-  const enPassant = doubleSteppedPawn && pawn && getPieceType(pawn) === "Pawn" ? `${"abcdefgh"[flipIndex(doubleSteppedPawn.col)]}${getPieceColor(pawn) === "w" ? 3 : 6}` : "-";
+  const isEnPassantValid = doubleSteppedPawn && pawn && getPieceType(pawn) === "Pawn" && getPieceColor(pawn) !== currentTurn;
+  const enPassant = doubleSteppedPawn && isEnPassantValid ? `${"abcdefgh"[flipIndex(doubleSteppedPawn.col)]}${getPieceColor(pawn) === "w" ? 3 : 6}` : "-";
 
   return `${placement} ${currentTurn} ${castling || "-"} ${enPassant} 0 1`;
 }
