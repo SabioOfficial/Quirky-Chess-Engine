@@ -1,12 +1,13 @@
 import type { GameStatus, PieceColor } from "~/lib/chess/types";
 import type { Route } from "./+types/game";
 import { getOpponent } from "~/lib/chess/rules";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { useChessGame } from "~/hooks/useChessGame";
 import { RuleToggler } from "~/components/chess/RuleToggler";
 import { ChessBoard } from "~/components/chess/ChessBoard";
 import { PromotionModal } from "~/components/chess/PromotionModal";
 import { MoveHistory } from "~/components/chess/MoveHistory";
+import { PositionPicker } from "~/components/chess/PositionPicker";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -31,6 +32,13 @@ const getStatusMessage = (status: GameStatus, currentTurn: PieceColor): string |
 }
 
 export default function Game() {
+  const [searchParams] = useSearchParams();
+  const initialFen = searchParams.get("fen");
+
+  return <GameView key={initialFen ?? ""} initialFen={initialFen} />;
+}
+
+function GameView({ initialFen }: { initialFen: string | null }) {
   const navigate = useNavigate();
   const {
     gameState,
@@ -42,8 +50,11 @@ export default function Game() {
     handleSquareClick,
     handlePromotionChoice,
     toggleRule,
-    resetGame
-  } = useChessGame();
+    resetGame,
+    startingFen,
+    startsWithBlack,
+    loadPosition
+  } = useChessGame(initialFen);
 
   const statusMessage = getStatusMessage(status, gameState.currentTurn);
 
@@ -63,9 +74,12 @@ export default function Game() {
         </div>
       )}
 
-      <RuleToggler rules={rules} onToggle={toggleRule} onExit={() => navigate("/")} />
+      <div className="flex flex-col gap-4">
+        <RuleToggler rules={rules} onToggle={toggleRule} onExit={() => navigate("/")} />
+        <PositionPicker startingFen={startingFen} onLoad={loadPosition} onRestart={resetGame} />
+      </div>
 
-      <MoveHistory moves={gameState.moveHistory} />
+      <MoveHistory moves={gameState.moveHistory} startsWithBlack={startsWithBlack} />
 
       <div className="mr-[clamp(0rem,8vw,6rem)] ml-auto flex aspect-square w-[min(90vw,90vh)] max-w-160 items-center justify-center">
         <ChessBoard

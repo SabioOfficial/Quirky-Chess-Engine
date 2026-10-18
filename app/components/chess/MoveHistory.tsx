@@ -4,9 +4,10 @@ import { Tooltip } from "react-tooltip";
 
 interface MoveHistoryProperties {
   moves: string[];
+  startsWithBlack?: boolean;
 }
 
-export function MoveHistory({ moves }: MoveHistoryProperties) {
+export function MoveHistory({ moves, startsWithBlack = false }: MoveHistoryProperties) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -14,15 +15,17 @@ export function MoveHistory({ moves }: MoveHistoryProperties) {
     if (scroller) scroller.scrollTop = scroller.scrollHeight;
   }, [moves.length]);
 
-  const turns = Array.from({ length: Math.ceil(moves.length / 2) }, (_, index) => ({
+  const displayMoves = startsWithBlack && moves.length > 0 ? ["...", ...moves] : moves;
+
+  const turns = Array.from({ length: Math.ceil(displayMoves.length / 2) }, (_, index) => ({
     number: index + 1,
     whiteIndex: index * 2,
     blackIndex: index * 2 + 1,
   }));
 
-  const lastMoveIndex = moves.length - 1;
+  const lastMoveIndex = displayMoves.length - 1;
   const renderMove = (moveIndex: number) => {
-    const move = moves[moveIndex];
+    const move = displayMoves[moveIndex];
     if (!move) return null;
 
     const label = moveIndex === lastMoveIndex ? (

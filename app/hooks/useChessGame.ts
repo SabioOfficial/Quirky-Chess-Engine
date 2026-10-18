@@ -1,9 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { parseFen, STANDARD_FEN, toFen } from "~/lib/chess/fen";
 import { applyMove, completePromotion, createInitialGameState, DEFAULT_RULES, getGameStatus, getLegalMoves, getPieceAt, getPieceColor, isSamePosition, type PromotionPieceType } from "~/lib/chess/rules";
 import type { Position, RuleToggles, GameState } from "~/lib/chess/types";
 
-export function useChessGame() {
-  const [gameState, setGameState] = useState<GameState>(createInitialGameState);
+const resolveStartingFen = (fen?: string | null): string => {
+  const result = fen ? parseFen(fen) : null;
+  return result?.state ? toFen(result.state) : STANDARD_FEN;
+}
+
+export function useChessGame(initialFen?: string | null) {
+  const [startingFen, setStartingFen] = useState<string>(() => resolveStartingFen(initialFen));
+  const startingState = useMemo(() => parseFen(startingFen).state ?? createInitialGameState(), [startingFen]);
+  const [gameState, setGameState] = useState<GameState>(startingState);
   const [rules, setRules] = useState<RuleToggles>(DEFAULT_RULES);
   const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
   const placeSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -58,8 +66,18 @@ export function useChessGame() {
   }
 
   const resetGame = () => {
-    setGameState(createInitialGameState());
+    setGameState(startingState);
     setSelectedSquare(null);
+  }
+
+  const loadPosition = (fen: string): string | null => {
+    const result = parseFen(fen);
+    if (!result.state) return result.error;
+
+    setStartingFen(toFen(result.state));
+    setGameState(result.state);
+    setSelectedSquare(null);
+    return null;
   }
 
   return {
@@ -73,5 +91,8 @@ export function useChessGame() {
     handlePromotionChoice,
     toggleRule,
     resetGame,
+    startingFen,
+    startsWithBlack: startingState.currentTurn === "b",
+    loadPosition,
   }
 }

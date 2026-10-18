@@ -128,7 +128,7 @@ const findKing = (board: Board, color: PieceColor): Position | null => {
   return null;
 }
 
-const isKingInCheck = (board: Board, color: PieceColor): boolean => {
+export const isKingInCheck = (board: Board, color: PieceColor): boolean => {
   const kingPosition = findKing(board, color);
   return kingPosition !== null && isSquareAttacked(board, kingPosition, getOpponent(color));
 }
